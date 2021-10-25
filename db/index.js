@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const cTable = require('console.table');
 const connection = require('./connections');
+const inquirer = require('inquirer');
 
 // const { start } = require("repl");
 
@@ -36,7 +37,7 @@ function viewEmp() {
     employee_role.title,
     employee_role.salary,
     employee.manager_id
-    FROM employee INNER JOIN employee_role ON employee.role_id`;
+    FROM employee INNER JOIN employee_role ON employee_role.id = employee.role_id`;
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.log("---------------------");
@@ -48,13 +49,63 @@ function viewEmp() {
 }
 
 function addDept() {
-    const query = `SELECT employee.id,
-    `
+    inquirer.prompt ([{
+        name: "dep_name",
+        message: "What department would you like to add?",
+        type: "input",
+    }])
+    .then((answer) => {
+       const query = `INSERT INTO department(dep_name) VALUES (?)` 
+       connection.query(query, [answer.dep_name], (err, res) => {
+        if (err) throw err;
+
+            const query = `SELECT * FROM department`;
+            connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.log("---------------------");
+            console.log("New Department Added:")
+            console.log("---------------------");
+            console.table(res);
+            begin();
+            });
+        });
+    })
 }
 
 function addRole() {
-    const query = `SELECT employee.id,
-    `
+    inquirer.prompt ([
+        {
+        name: "title",
+        message: "What role would you like to add?",
+        type: "input",
+        },
+        {
+        name: "salary",
+        message: "What is the salary of this new role?",
+        type: "number",
+        },
+        {
+        name: "department_id",
+        message: "What department is the new role under? Please input department id.",
+        type: "number"
+        }
+    ])
+    .then((answer) => {
+       const query = `INSERT INTO employee_role(title, salary, department_id) VALUES (?, ?, ?)` 
+       connection.query(query, [answer.title, answer.salary, answer.department_id], (err, res) => {
+        if (err) throw err;
+
+            const query = `SELECT * FROM employee_role`;
+            connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.log("---------------------");
+            console.log("New Role Added:")
+            console.log("---------------------");
+            console.table(res);
+            begin();
+            });
+        });
+    })
 }
 
 function addEmp() {

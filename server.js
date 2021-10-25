@@ -15,9 +15,9 @@ connection.connect((err) => {
 // function to run once connection is made, show prompt selections
 function begin() {
     inquirer.prompt ([{
-        type: "list",
         name: "main",
         message: "Hello! Welcome to The Office Employee Tracker. Please select from the options below.",
+        type: "list",
         choices: [
             "View all departments",
             "View all roles",
