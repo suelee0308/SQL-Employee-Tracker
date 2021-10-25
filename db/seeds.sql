@@ -20,7 +20,7 @@ VALUES  ("Regional Manager", 120000, 6),
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES  ("Michael", "Scott", 1, NULL),
         ("Jim", "Halpert", 2, 1),
-        ("Pamela", "Beasley", 3, 1),
+        ("Pam", "Beasley", 3, 1),
         ("Erin", "Hannon", 3, 1),
         ("Kellly", "Kapoor", 4, 1),
         ("Oscar", "Martinez", 5, 1),

@@ -109,13 +109,80 @@ function addRole() {
 }
 
 function addEmp() {
-    const query = `SELECT employee.id,
-    `
+    inquirer.prompt ([
+        {
+        name: "first_name",
+        message: "What is the new employee's first name?",
+        type: "input",
+        },
+        {
+        name: "last_name",
+        message: "Last name?",
+        type: "input",
+        },
+        {
+        name: "role",
+        message: "What is the new employee's role? Please input their role id.",
+        type: "number"
+        }
+    ])
+    .then((answer) => {
+       const query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, 1)` 
+       connection.query(query, [answer.first_name, answer.last_name, answer.role], (err, res) => {
+        if (err) throw err;
+
+            const query = `SELECT * FROM employee`;
+            connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.log("---------------------");
+            console.log("New Employee Added:")
+            console.log("---------------------");
+            console.table(res);
+            begin();
+            });
+        });
+    })
 }
 
 function updateRole() {
-    const query = `SELECT employee.id,
-    `
+    inquirer.prompt ([
+        {
+        name: "first_name",
+        message: "Whose role would you like to update? Please input first name with first letter capatalized.",
+        type: "input",
+        },
+        {
+        name: "last_name",
+        message: "Last name?",
+        type: "input",
+        },
+        {
+        name: "update_role",
+        message: "What would you like to update their role to? Please input their role id.",
+        type: "number"
+        }
+    ])
+    .then((answer) => {
+       const query = `UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?` 
+       connection.query(query, [answer.update_role, answer.first_name, answer.last_name], (err, res) => {
+        if (err) throw err;
+
+            const query = `SELECT employee.id,
+            employee.first_name,
+            employee.last_name,
+            employee_role.id,
+            employee_role.title
+            FROM employee INNER JOIN employee_role ON employee_role.id = employee.role_id`;
+            connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.log("---------------------");
+            console.log("Role Updated:")
+            console.log("---------------------");
+            console.table(res);
+            begin();
+            });
+        });
+    })
 }
 
 module.exports = { viewDept, viewRole, viewEmp, addDept, addRole, addEmp, updateRole }
