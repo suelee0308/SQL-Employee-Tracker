@@ -2,34 +2,19 @@ const mysql = require('mysql2');
 const cTable = require('console.table');
 const connection = require('./connections');
 const inquirer = require('inquirer');
+const { connect } = require('./connections');
 
-// const { start } = require("repl");
-
-function viewDept() {
+async function viewDept() {
     const query = `SELECT * FROM department`;
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.log("---------------------");
-        console.log("All Departments:")
-        console.log("---------------------");
-        console.table(res);
-        begin();
-    });
+    return connection.promise().query(query);
 };
 
-function viewRole() {
+async function viewRole() {
     const query = `SELECT * FROM employee_role`;
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.log("---------------------");
-        console.log("All Roles:")
-        console.log("---------------------");
-        console.table(res);
-        begin()
-    });
+    return connection.promise().query(query);
 }
 
-function viewEmp() {
+async function viewEmp() {
     const query = `SELECT employee.id,
     employee.first_name,
     employee.last_name,
@@ -38,42 +23,22 @@ function viewEmp() {
     employee_role.salary,
     employee.manager_id
     FROM employee INNER JOIN employee_role ON employee_role.id = employee.role_id`;
-    connection.query(query, (err, res) => {
-        if (err) throw err;
-        console.log("---------------------");
-        console.log("All Employees:")
-        console.log("---------------------");
-        console.table(res);
-        begin()
-    });
+    return connection.promise().query(query);
 }
 
-function addDept() {
-    inquirer.prompt ([{
+async function addDept() {
+    const depInfo = await inquirer.prompt ([{
         name: "dep_name",
         message: "What department would you like to add?",
         type: "input",
     }])
-    .then((answer) => {
-       const query = `INSERT INTO department(dep_name) VALUES (?)` 
-       connection.query(query, [answer.dep_name], (err, res) => {
-        if (err) throw err;
-
-            const query = `SELECT * FROM department`;
-            connection.query(query, (err, res) => {
-            if (err) throw err;
-            console.log("---------------------");
-            console.log("New Department Added:")
-            console.log("---------------------");
-            console.table(res);
-            begin();
-            });
-        });
-    })
+    await connection.promise().query(`INSERT INTO department (dep_name) VALUE (?)`, depInfo.dep_name) 
+    const query = await connection.promise().query(`SELECT * FROM department`);
+    return query;     
 }
 
-function addRole() {
-    inquirer.prompt ([
+async function addRole() {
+    const roleInfo = await inquirer.prompt ([
         {
         name: "title",
         message: "What role would you like to add?",
@@ -89,27 +54,15 @@ function addRole() {
         message: "What department is the new role under? Please input department id.",
         type: "number"
         }
-    ])
-    .then((answer) => {
-       const query = `INSERT INTO employee_role(title, salary, department_id) VALUES (?, ?, ?)` 
-       connection.query(query, [answer.title, answer.salary, answer.department_id], (err, res) => {
-        if (err) throw err;
+    ]);
+    await connection.promise().query(`INSERT INTO employee_role(title, salary, department_id) VALUES (?, ?, ?)`, [roleInfo.title, roleInfo.salary, roleInfo.department_id]);
 
-            const query = `SELECT * FROM employee_role`;
-            connection.query(query, (err, res) => {
-            if (err) throw err;
-            console.log("---------------------");
-            console.log("New Role Added:")
-            console.log("---------------------");
-            console.table(res);
-            begin();
-            });
-        });
-    })
+    const query = await connection.promise().query(`SELECT * FROM employee_role`);
+    return query;
 }
 
-function addEmp() {
-    inquirer.prompt ([
+async function addEmp() {
+    const empInfo = await inquirer.prompt ([
         {
         name: "first_name",
         message: "What is the new employee's first name?",
@@ -125,27 +78,15 @@ function addEmp() {
         message: "What is the new employee's role? Please input their role id.",
         type: "number"
         }
-    ])
-    .then((answer) => {
-       const query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, 1)` 
-       connection.query(query, [answer.first_name, answer.last_name, answer.role], (err, res) => {
-        if (err) throw err;
+    ]);
+    await connection.promise().query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, 1)`, [empInfo.first_name, empInfo.last_name, empInfo.role])
 
-            const query = `SELECT * FROM employee`;
-            connection.query(query, (err, res) => {
-            if (err) throw err;
-            console.log("---------------------");
-            console.log("New Employee Added:")
-            console.log("---------------------");
-            console.table(res);
-            begin();
-            });
-        });
-    })
+    const query = await connection.promise().query(`SELECT * FROM employee`);
+    return query;
 }
 
-function updateRole() {
-    inquirer.prompt ([
+async function updateRole() {
+    const updateInfo = await inquirer.prompt ([
         {
         name: "first_name",
         message: "Whose role would you like to update? Please input first name with first letter capatalized.",
@@ -161,28 +102,17 @@ function updateRole() {
         message: "What would you like to update their role to? Please input their role id.",
         type: "number"
         }
-    ])
-    .then((answer) => {
-       const query = `UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?` 
-       connection.query(query, [answer.update_role, answer.first_name, answer.last_name], (err, res) => {
-        if (err) throw err;
+    ]);
+    await connection.promise().query(`UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?`,
+        [updateInfo.update_role, updateInfo.first_name, updateInfo.last_name]);
 
-            const query = `SELECT employee.id,
-            employee.first_name,
-            employee.last_name,
-            employee_role.id,
-            employee_role.title
-            FROM employee INNER JOIN employee_role ON employee_role.id = employee.role_id`;
-            connection.query(query, (err, res) => {
-            if (err) throw err;
-            console.log("---------------------");
-            console.log("Role Updated:")
-            console.log("---------------------");
-            console.table(res);
-            begin();
-            });
-        });
-    })
+    const query = await connection.promise().query(`SELECT employee.id,
+    employee.first_name,
+    employee.last_name,
+    employee_role.id,
+    employee_role.title
+    FROM employee INNER JOIN employee_role ON employee_role.id = employee.role_id`);
+    return query;
 }
 
 module.exports = { viewDept, viewRole, viewEmp, addDept, addRole, addEmp, updateRole }
