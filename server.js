@@ -2,7 +2,7 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 const connection = require('./db/connections');
-const { viewDept, viewRole, viewEmp, addDept, addRole, addEmp, updateRole } = require('./db/index')
+const { viewDept, viewRole, viewEmp, viewEmpByDep, addDept, addRole, addEmp, updateRole } = require('./db/index')
 // const { connect } = require('./db/connections');
 
 
@@ -22,6 +22,7 @@ function begin() {
             "View all departments",
             "View all roles",
             "View all employees",
+            "View employees by department",
             "Add a department",
             "Add a role",
             "Add an employee",
@@ -64,6 +65,17 @@ async function questions(answer) {
             .then((results) => {
                 console.log("---------------------");
                 console.log("All Employees:")
+                console.log("---------------------");
+                console.table(results[0]);
+                begin()    
+            });
+            break;
+        }
+        case "View employees by department" : {
+            viewEmpByDep()
+            .then((results) => {
+                console.log("---------------------");
+                console.log("All Employees in Department:")
                 console.log("---------------------");
                 console.table(results[0]);
                 begin()    

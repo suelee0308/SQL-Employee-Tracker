@@ -15,15 +15,47 @@ async function viewRole() {
 }
 
 async function viewEmp() {
+
     const query = `SELECT employee.id,
     employee.first_name,
     employee.last_name,
-    employee_role.id,
+    e.first_name as manager_first_name,
+    e.last_name as manager_last_name,
     employee_role.title,
     employee_role.salary,
     employee.manager_id
-    FROM employee INNER JOIN employee_role ON employee_role.id = employee.role_id`;
+    FROM employee JOIN employee_role ON employee_role.id = employee.role_id
+    JOIN employee e ON e.id = employee.manager_id
+    JOIN department WHERE department_id = department.id ORDER BY employee.id`;
     return connection.promise().query(query);
+}
+
+async function viewEmpByDep() {
+    const depName = await inquirer.prompt ([{
+        name: "dep_name",
+        message: "What department would you like to view the employees of?",
+        type: "list",
+        choices: [
+            "Accounting",
+            "Sales",
+            "Customer Service",
+            "Quality Assurance",
+            "Warehouse",
+            "Management"
+        ]
+    }])
+    const depQuery = await connection.promise().query(`SELECT id FROM department WHERE department.dep_name = ?`, depName.dep_name)
+    console.log(depQuery);
+    const query = await connection.promise().query(`SELECT department.id,
+        department.dep_name,
+        employee_role.id,
+        employee_role.department_id,
+        employee.first_name,
+        employee.last_name,
+        employee.role_id
+        FROM department INNER JOIN employee_role ON department.id = employee_role.department_id
+        JOIN employee ON employee_role.id = employee.role_id WHERE department.id = ?`, depQuery[0][0].id);
+    return query;
 }
 
 async function addDept() {
@@ -115,4 +147,4 @@ async function updateRole() {
     return query;
 }
 
-module.exports = { viewDept, viewRole, viewEmp, addDept, addRole, addEmp, updateRole }
+module.exports = { viewDept, viewRole, viewEmp, viewEmpByDep, addDept, addRole, addEmp, updateRole }
