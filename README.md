@@ -24,6 +24,7 @@ https://youtu.be/At2G9kqsIgA
 
 ## Credits
 - Sue Lee
+- Ethan Cho helped with async/await functions and passing inquirer variables correctly through queries.
 
 ## License
 ![MIT](https://img.shields.io/badge/License-MIT-blue.svg)
