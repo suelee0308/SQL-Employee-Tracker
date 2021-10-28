@@ -19,6 +19,7 @@ A command-line application that dynamically interacts with a database.
 ![A screenshot of the application](./assets/screenshot.png)
 
 ## Link to demo:
+https://youtu.be/At2G9kqsIgA
 
 
 ## Credits

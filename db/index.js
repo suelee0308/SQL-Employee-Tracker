@@ -45,7 +45,6 @@ async function viewEmpByDep() {
         ]
     }])
     const depQuery = await connection.promise().query(`SELECT id FROM department WHERE department.dep_name = ?`, depName.dep_name)
-    console.log(depQuery);
     const query = await connection.promise().query(`SELECT department.id,
         department.dep_name,
         employee_role.id,
